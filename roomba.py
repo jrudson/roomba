@@ -54,6 +54,7 @@ class Roomba(object):
         :param angular_speed: the robot's angular speed.
         :type angular_speed: float
         """
+
         self.linear_speed = clamp(linear_speed, -self.max_linear_speed, self.max_linear_speed)
         self.angular_speed = clamp(angular_speed, -self.max_angular_speed, self.max_angular_speed)
 
