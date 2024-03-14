@@ -250,8 +250,6 @@ class MoveInSpiralNode(LeafNode):
         # Todo: add execution logic
         self.call_count += 1
         self.time = self.call_count * SAMPLE_TIME
-        print('self.time: ')
-        print(self.time)
         self.radio = INITIAL_RADIUS_SPIRAL + (SPIRAL_FACTOR * self.time)
         angular_speed = ANGULAR_SPEED / self.radio
         get_bumper_state = agent.get_bumper_state()
@@ -286,11 +284,15 @@ class GoBackNode(LeafNode):
         get_bumper_state = agent.get_bumper_state()
 
         print('GoBackNode first')
+        print(f'self.time: {self.time}')
+        print(f'GO_BACK_TIME: {GO_BACK_TIME}')
+        print(f'get_bumper_state: {get_bumper_state}')
         if self.time > GO_BACK_TIME and get_bumper_state == False:
             print('GoBackNode executing Success')
             return ExecutionStatus.SUCCESS
         else:
             print('GoBackNode executing Running')
+            agent.set_velocity(BACKWARD_SPEED, 0)
             return ExecutionStatus.RUNNING
         pass
 
@@ -303,12 +305,12 @@ class RotateNode(LeafNode):
     def enter(self, agent):
         # Todo: add enter logic
         self.call_count = 0
+        self.random_angular_direction = random.uniform(-1, 1)
+        self.roomba_turning_time = random.uniform(1, MOVE_FORWARD_TIME)
         pass
 
     def execute(self, agent):
         # Todo: add execution logic
-        self.random_angular_direction = random.uniform(-1, 1)
-        self.roomba_turning_time = random.uniform(1, MOVE_FORWARD_TIME)
         self.call_count += 1
         self.time = self.call_count * SAMPLE_TIME
         get_bumper_state = agent.get_bumper_state()
