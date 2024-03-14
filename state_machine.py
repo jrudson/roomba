@@ -107,9 +107,7 @@ class MoveInSpiralState(State):
     def execute(self, agent):
         # Todo: add execution logic
         self.radio = INITIAL_RADIUS_SPIRAL + (SPIRAL_FACTOR * self.time)
-        print(f'Radio: {self.radio}')
         angular_speed = ANGULAR_SPEED / self.radio
-        print(f'angular speed: {angular_speed}')
         agent.set_velocity(self.linear_speed, angular_speed)
         pass
 
@@ -143,23 +141,23 @@ class RotateState(State):
         # Todo: add initialization code
         self.time = 0
         self.call_count = 0
+        self.random_angular_direction = random.uniform(-1, 1)
 
     def check_transition(self, agent, state_machine):
         # Todo: add logic to check and execute state transition
         get_bumper_state = agent.get_bumper_state()
         self.call_count += 1
         self.time = self.call_count * SAMPLE_TIME
-        print(get_bumper_state)
-        if get_bumper_state == False:
+        self.roomba_turning_time = random.uniform(1, MOVE_FORWARD_TIME)
+        if get_bumper_state == False and self.time > self.roomba_turning_time:
             new_state = MoveForwardState()
             state_machine.change_state(new_state)
         pass
 
     def execute(self, agent):
         # Todo: add execution logic
-        test = random.uniform(-math.pi, math.pi)
-        print(f'test: {test}')
-        angular_speed = ANGULAR_SPEED / test
-        print(f'angular_speed: {angular_speed}')
-        agent.set_velocity(0, angular_speed)
+        if self.random_angular_direction > 0:
+            agent.set_velocity(0, ANGULAR_SPEED)
+        else:
+            agent.set_velocity(0, -ANGULAR_SPEED)
         pass

@@ -184,19 +184,53 @@ class RoombaBehaviorTree(BehaviorTree):
     def __init__(self):
         super().__init__()
         # Todo: construct the tree here
+        # Constructing the tree
+        root_node = SelectorNode("Root")
+        sequence_one = SequenceNode("SequenceOne")
+        sequence_two = SequenceNode("SequenceTwo")
 
+        # Creating and adding nodes to the tree
+        move_forward_node = MoveForwardNode()
+        move_in_spiral_node = MoveInSpiralNode()
+        go_back_node = GoBackNode()
+        rotate_node = RotateNode()
+
+        # Adding nodes to the root selector node
+        sequence_one.add_child(move_forward_node)
+        sequence_one.add_child(move_in_spiral_node)
+        sequence_two.add_child(go_back_node)
+        sequence_two.add_child(rotate_node)
+
+        root_node.add_child(sequence_one)
+        root_node.add_child(sequence_two)
+
+        # Setting the root node of the behavior tree
+        self.root = root_node
 
 class MoveForwardNode(LeafNode):
     def __init__(self):
         super().__init__("MoveForward")
         # Todo: add initialization code
+        self.linear_speed = FORWARD_SPEED
 
     def enter(self, agent):
         # Todo: add enter logic
+        self.call_count = 0
         pass
 
     def execute(self, agent):
         # Todo: add execution logic
+        get_bumper_state = agent.get_bumper_state()
+        self.call_count += 1
+        self.time = self.call_count * SAMPLE_TIME
+        if self.time < 3:
+            if get_bumper_state == False:
+                agent.set_velocity(self.linear_speed, 0)
+                return ExecutionStatus.RUNNING
+            else:
+                return ExecutionStatus.FAILURE
+        else:
+            return ExecutionStatus.SUCCESS
         pass
 
 
@@ -204,13 +238,32 @@ class MoveInSpiralNode(LeafNode):
     def __init__(self):
         super().__init__("MoveInSpiral")
         # Todo: add initialization code
+        self.angular_speed = ANGULAR_SPEED
+        self.linear_speed = FORWARD_SPEED
 
     def enter(self, agent):
         # Todo: add enter logic
+        self.call_count = 0
         pass
 
     def execute(self, agent):
         # Todo: add execution logic
+        self.call_count += 1
+        self.time = self.call_count * SAMPLE_TIME
+        print('self.time: ')
+        print(self.time)
+        self.radio = INITIAL_RADIUS_SPIRAL + (SPIRAL_FACTOR * self.time)
+        angular_speed = ANGULAR_SPEED / self.radio
+        get_bumper_state = agent.get_bumper_state()
+        if self.time < 20:
+            if get_bumper_state == False:
+                agent.set_velocity(self.linear_speed, angular_speed)
+                test = ExecutionStatus.RUNNING
+            else:
+                test = ExecutionStatus.FAILURE
+            return test
+        else:
+            return ExecutionStatus.SUCCESS
         pass
 
 
@@ -218,13 +271,27 @@ class GoBackNode(LeafNode):
     def __init__(self):
         super().__init__("GoBack")
         # Todo: add initialization code
+        self.linear_speed = FORWARD_SPEED
+        self.call_count = 0
 
     def enter(self, agent):
         # Todo: add enter logic
+        print('enter GoBackNode')
         pass
 
     def execute(self, agent):
         # Todo: add execution logic
+        self.call_count += 1
+        self.time = self.call_count * SAMPLE_TIME
+        get_bumper_state = agent.get_bumper_state()
+
+        print('GoBackNode first')
+        if self.time > GO_BACK_TIME and get_bumper_state == False:
+            print('GoBackNode executing Success')
+            return ExecutionStatus.SUCCESS
+        else:
+            print('GoBackNode executing Running')
+            return ExecutionStatus.RUNNING
         pass
 
 
@@ -235,9 +302,24 @@ class RotateNode(LeafNode):
 
     def enter(self, agent):
         # Todo: add enter logic
+        self.call_count = 0
         pass
 
     def execute(self, agent):
         # Todo: add execution logic
+        self.random_angular_direction = random.uniform(-1, 1)
+        self.roomba_turning_time = random.uniform(1, MOVE_FORWARD_TIME)
+        self.call_count += 1
+        self.time = self.call_count * SAMPLE_TIME
+        get_bumper_state = agent.get_bumper_state()
+        if self.time < self.roomba_turning_time:
+            if self.random_angular_direction > 0:
+                agent.set_velocity(0, ANGULAR_SPEED)
+                return ExecutionStatus.RUNNING
+            else:
+                agent.set_velocity(0, -ANGULAR_SPEED)
+                return ExecutionStatus.RUNNING
+        elif get_bumper_state == False:
+            return ExecutionStatus.FAILURE
         pass
 
