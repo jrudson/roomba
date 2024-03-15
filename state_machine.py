@@ -1,10 +1,6 @@
 import random
-import math
 from constants import *
 from roomba import *
-from utils import Vector2
-from roomba import Roomba
-from simulation import *
 
 class FiniteStateMachine(object):
     """
@@ -66,7 +62,6 @@ class MoveForwardState(State):
         # Todo: add logic to check and execute state transition
         self.call_count += 1
         self.time = self.call_count * SAMPLE_TIME
-        # Verifica se o roomba bateu em uma parede
         get_bumper_state = agent.get_bumper_state()
         if get_bumper_state == True:
             new_state = GoBackState()

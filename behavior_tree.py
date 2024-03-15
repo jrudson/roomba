@@ -1,7 +1,6 @@
 from enum import Enum
 from constants import *
 import random
-import math
 
 
 class ExecutionStatus(Enum):
@@ -274,7 +273,6 @@ class GoBackNode(LeafNode):
 
     def enter(self, agent):
         # Todo: add enter logic
-        print('enter GoBackNode')
         pass
 
     def execute(self, agent):
@@ -283,15 +281,9 @@ class GoBackNode(LeafNode):
         self.time = self.call_count * SAMPLE_TIME
         get_bumper_state = agent.get_bumper_state()
 
-        print('GoBackNode first')
-        print(f'self.time: {self.time}')
-        print(f'GO_BACK_TIME: {GO_BACK_TIME}')
-        print(f'get_bumper_state: {get_bumper_state}')
         if self.time > GO_BACK_TIME and get_bumper_state == False:
-            print('GoBackNode executing Success')
             return ExecutionStatus.SUCCESS
         else:
-            print('GoBackNode executing Running')
             agent.set_velocity(BACKWARD_SPEED, 0)
             return ExecutionStatus.RUNNING
         pass
